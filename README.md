@@ -1,5 +1,5 @@
 # lifeHS
-Simple implementation of Conway's Game of Life in Haskell using a finite wraparound grid.
+Simple implementation of [Conway's Game of Life][1] in Haskell using a finite wraparound grid.
 
 ## Getting Started
 
@@ -19,3 +19,5 @@ The starting state of the game is taken from the contents of `initialState.txt`;
     ..........
     
 If you need to recompile the source code, use GHC: `ghc --make life`
+
+[1]: https://en.wikipedia.org/wiki/Conway's_Game_of_Life
