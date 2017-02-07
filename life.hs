@@ -1,8 +1,11 @@
 import System.IO
 import System.IO.Unsafe
 import Control.Monad
+import Control.Concurrent
 
 {- Main game loop -}
+
+_TIMESTEP = 1000000 -- microseconds
 
 main :: IO ()
 main = do
@@ -12,7 +15,8 @@ main = do
 
 updateOutput :: LogicGrid -> IO ()
 updateOutput grid = do
---  putStr "\ESC[2J"
+  putStrLn ""
+  threadDelay _TIMESTEP
   newGrid <- return $ updateGrid grid
   showGrid newGrid
   updateOutput newGrid
@@ -32,15 +36,6 @@ type LogicGrid = [[Bool]]
 type DisplayGrid = [[Char]]
 
 {- Grid representation + display -}
-
-_DEFAULTWIDTH = 30
-_DEFAULTHEIGHT = 30
-
-defaultGrid :: LogicGrid
-defaultGrid = replicate _DEFAULTHEIGHT $ replicate _DEFAULTWIDTH False
-
-exampleGrid :: LogicGrid
-exampleGrid = [[False,False,False,False,False],[False,False,True,False,False],[False,False,True,False,False],[False,False,True,False,False],[False,False,False,False,False]]
 
 displayGrid :: LogicGrid -> DisplayGrid
 displayGrid = map displayRow
@@ -62,6 +57,8 @@ readGrid = do
   putStr contents
   hClose handle
   return $ interpretGrid $ lines contents
+
+-- TODO: error handling if e.g. file not found, grid not a rectangle
 
 {- Retrieving cell values -}
 
