@@ -21,7 +21,7 @@ defaultGrid :: LogicGrid
 defaultGrid = replicate _DEFAULTHEIGHT $ replicate _DEFAULTWIDTH False
 
 exampleGrid :: LogicGrid
-exampleGrid = [[True,True,True],[False,True,False],[True,False,True]]
+exampleGrid = [[False,False,False,False,False],[False,False,True,False,False],[False,False,True,False,False],[False,False,True,False,False],[False,False,False,False,False]]
 
 displayGrid :: LogicGrid -> DisplayGrid
 displayGrid = map displayRow
@@ -133,3 +133,8 @@ newCellValue p grid = case getCell p grid of
   False -> case liveNeighbours p grid of
     3 -> True
     x -> False
+
+updateGrid :: LogicGrid -> LogicGrid
+updateGrid grid = [updateRow y grid | y <- [top grid .. bottom grid]]
+  where 
+    updateRow y grid = [newCellValue (x,y) grid | x <- [leftEdge grid .. rightEdge grid]]
