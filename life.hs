@@ -1,4 +1,23 @@
 import System.IO
+import System.IO.Unsafe
+import Control.Monad
+
+{- Main game loop -}
+
+main :: IO ()
+main = do
+  hSetBuffering stdout NoBuffering
+  grid <- readGrid
+  updateOutput grid
+
+updateOutput :: LogicGrid -> IO ()
+updateOutput grid = do
+--  putStr "\ESC[2J"
+  newGrid <- return $ updateGrid grid
+  showGrid newGrid
+  updateOutput newGrid
+
+-- TODO: improve display of output
 
 {- Type definitions -}
 
