@@ -1,7 +1,9 @@
+import System.IO
+
 {- Type definitions -}
 
 alive = '#'
-dead = ' '
+dead = '.'
 
 type PosX = Int
 type PosY = Int
@@ -25,8 +27,22 @@ displayGrid :: LogicGrid -> DisplayGrid
 displayGrid = map displayRow
   where displayRow = foldr (\x acc -> if x then alive:acc else dead:acc) []
 
+interpretGrid :: DisplayGrid -> LogicGrid
+interpretGrid = map interpretRow
+  where interpretRow = foldr (\x acc -> (x==alive):acc) []
+
 showGrid :: LogicGrid -> IO ()
 showGrid = mapM_ putStrLn . displayGrid
+
+{- File I/O -}
+
+readGrid :: IO LogicGrid
+readGrid = do
+  handle <- openFile "initialState.txt" ReadMode
+  contents <- hGetContents handle
+  putStr contents
+  hClose handle
+  return $ interpretGrid $ lines contents
 
 {- Retrieving cell values -}
 
