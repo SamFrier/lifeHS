@@ -5,7 +5,7 @@ import Control.Concurrent
 
 {- Main game loop -}
 
-_TIMESTEP = 1000000 -- microseconds
+_TIMESTEP = 500000 -- microseconds
 
 main :: IO ()
 main = do
