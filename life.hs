@@ -133,8 +133,6 @@ liveNeighbours p = length . filter id . getNeighbours p
 newCellValue :: Position -> LogicGrid -> Bool
 newCellValue p grid = case getCell p grid of
   True -> case liveNeighbours p grid of
-    0 -> False
-    1 -> False
     2 -> True
     3 -> True
     x -> False
