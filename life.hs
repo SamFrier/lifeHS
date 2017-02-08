@@ -1,5 +1,5 @@
 import System.IO
-import System.IO.Unsafe
+import System.Environment
 import Control.Monad
 import Control.Concurrent
 
@@ -10,8 +10,13 @@ _TIMESTEP = 250000 -- microseconds
 main :: IO ()
 main = do
   hSetBuffering stdout NoBuffering
-  grid <- readGrid
-  updateOutput grid
+  args <- getArgs
+  if length args >= 1 then do
+    grid <- readGrid $ head args
+    updateOutput grid
+  else do
+    grid <- readGrid "default.txt"
+    updateOutput grid
 
 updateOutput :: LogicGrid -> IO ()
 updateOutput grid = do
@@ -50,9 +55,9 @@ showGrid = mapM_ putStrLn . displayGrid
 
 {- File I/O -}
 
-readGrid :: IO LogicGrid
-readGrid = do
-  handle <- openFile "initialState.txt" ReadMode
+readGrid :: FilePath -> IO LogicGrid
+readGrid file = do
+  handle <- openFile file ReadMode
   contents <- hGetContents handle
   putStr contents
   hClose handle
