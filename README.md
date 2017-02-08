@@ -20,6 +20,4 @@ The starting state of the game is taken from the contents of `initialState.txt`;
     ..........
     ..........
     
-If you need to recompile the source code, use GHC: `ghc --make life`
-
 [1]: https://en.wikipedia.org/wiki/Conway's_Game_of_Life
