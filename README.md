@@ -1,5 +1,5 @@
 # lifeHS
-Simple implementation of [Conway's Game of Life][1] in Haskell using a finite wraparound grid.
+Simple implementation of [Conway's Game of Life][1] in Haskell using a finite grid.
 
 ## Getting Started
 

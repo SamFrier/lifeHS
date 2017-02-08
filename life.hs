@@ -90,48 +90,40 @@ getNeighbours (x,y) grid = [a,b,l,r,al,ar,bl,br]
     br = getBelowRight (x,y) grid
 
 getAbove :: Position -> LogicGrid -> Bool
-getAbove (x,y) grid = getCell (x, above) grid
-  where 
-    above = if y == top grid then bottom grid else y-1
+getAbove (x,y) grid | y == top grid = False
+                    | otherwise = getCell (x, y-1) grid
 
 getBelow :: Position -> LogicGrid -> Bool
-getBelow (x,y) grid = getCell (x, below) grid
-  where 
-    below = if y == bottom grid then top grid else y+1
+getBelow (x,y) grid | y == bottom grid = False
+                    | otherwise = getCell (x, y+1) grid
 
 getLeft :: Position -> LogicGrid -> Bool
-getLeft (x,y) grid = getCell (left, y) grid
-  where
-    left = if x == leftEdge grid then rightEdge grid else x-1
+getLeft (x,y) grid | x == leftEdge grid = False
+                   | otherwise = getCell (x-1, y) grid
 
 getRight :: Position -> LogicGrid -> Bool
-getRight (x,y) grid = getCell (right, y) grid
-  where
-    right = if x == rightEdge grid then leftEdge grid else x+1
+getRight (x,y) grid | x == rightEdge grid = False
+                    | otherwise = getCell (x+1, y) grid
 
 getAboveLeft :: Position -> LogicGrid -> Bool
-getAboveLeft (x,y) grid = getCell (left, above) grid
-  where
-    left = if x == leftEdge grid then rightEdge grid else x-1
-    above = if y == top grid then bottom grid else y-1
+getAboveLeft (x,y) grid | x == leftEdge grid = False
+                        | y == top grid = False
+                        | otherwise = getCell (x-1, y-1) grid
 
 getAboveRight :: Position -> LogicGrid -> Bool
-getAboveRight (x,y) grid = getCell (right, above) grid
-  where
-    right = if x == rightEdge grid then leftEdge grid else x+1
-    above = if y == top grid then bottom grid else y-1
+getAboveRight (x,y) grid | x == rightEdge grid = False
+                         | y == top grid = False
+                         | otherwise = getCell (x+1, y-1) grid
 
 getBelowLeft :: Position -> LogicGrid -> Bool
-getBelowLeft (x,y) grid = getCell (left, below) grid
-  where
-    left = if x == leftEdge grid then rightEdge grid else x-1
-    below = if y == bottom grid then top grid else y+1 
+getBelowLeft (x,y) grid | x == leftEdge grid = False
+                        | y == bottom grid = False
+                        | otherwise = getCell (x-1, y+1) grid
 
 getBelowRight :: Position -> LogicGrid -> Bool
-getBelowRight (x,y) grid = getCell (right, below) grid
-  where
-    right = if x == rightEdge grid then leftEdge grid else x+1
-    below = if y == bottom grid then top grid else y+1
+getBelowRight (x,y) grid | x == rightEdge grid = False
+                         | y == bottom grid = False
+                         | otherwise = getCell (x+1, y+1) grid
 
 {- Game logic -}
 
