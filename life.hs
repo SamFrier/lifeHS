@@ -49,9 +49,10 @@ dead = '.'
 type PosX = Int
 type PosY = Int
 type Position = (PosX, PosY)
+type CellValue = Char
 
 type LogicGrid = [[Bool]]
-type DisplayGrid = [[Char]]
+type DisplayGrid = [[CellValue]]
 
 
 
@@ -92,29 +93,41 @@ readGrid file = do
     return Nothing
 
 
--- Check for invalid characters in input file
--- TODO: also check for uneven row lengths
+-- Check that an input grid is valid
 validateGrid :: DisplayGrid -> Bool
-validateGrid  = and . map validateRow
+validateGrid grid = validateRowLengths grid && validateChars grid
+
+
+-- Check that all rows are the same (non-zero) length
+validateRowLengths :: DisplayGrid -> Bool
+validateRowLengths grid = firstRowLength /= 0 && all validRowLength grid
+  where 
+   validRowLength row = length row == firstRowLength
+   firstRowLength = length $ head grid
+
+
+-- Check for invalid characters in input file
+validateChars :: DisplayGrid -> Bool
+validateChars  = all validateRow
   where
-    validateRow = all valid
-    valid cell = cell == alive || cell == dead
+    validateRow = all validChar
+    validChar cell = cell == alive || cell == dead
 
 
 
 {- Retrieving cell values -}
 
 
-top :: LogicGrid -> Int
+top :: LogicGrid -> PosY
 top _ = 0
 
-bottom :: LogicGrid -> Int
+bottom :: LogicGrid -> PosY
 bottom grid = length grid - 1
 
-leftEdge :: LogicGrid -> Int
+leftEdge :: LogicGrid -> PosX
 leftEdge _ = 0
 
-rightEdge :: LogicGrid -> Int
+rightEdge :: LogicGrid -> PosX
 rightEdge grid = length (head grid) - 1
 
 
@@ -207,3 +220,4 @@ updateGrid :: LogicGrid -> LogicGrid
 updateGrid grid = [updateRow y grid | y <- [top grid .. bottom grid]]
   where 
     updateRow y grid = [newCellValue (x,y) grid | x <- [leftEdge grid .. rightEdge grid]]
+
