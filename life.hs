@@ -2,22 +2,32 @@ import System.IO
 import System.Environment
 import Control.Monad
 import Control.Concurrent
+import Data.Maybe
 
 {- Main game loop -}
 
+
 _TIMESTEP = 250000 -- microseconds
 
+
+-- Entry point
 main :: IO ()
 main = do
   hSetBuffering stdout NoBuffering
   args <- getArgs
   if length args >= 1 then do
     grid <- readGrid $ head args
-    updateOutput grid
+    if grid == Nothing then do
+      error "Invalid input - please check the input file and try again"
+      return ()
+    else do
+      updateOutput $ fromJust grid
   else do
     grid <- readGrid "default.txt"
-    updateOutput grid
+    updateOutput $ fromJust grid
 
+
+-- Repeatedly generate + display new grid state
 updateOutput :: LogicGrid -> IO ()
 updateOutput grid = do
   putStrLn ""
@@ -28,7 +38,10 @@ updateOutput grid = do
 
 -- TODO: improve display of output
 
+
+
 {- Type definitions -}
+
 
 alive = '#'
 dead = '.'
@@ -40,32 +53,57 @@ type Position = (PosX, PosY)
 type LogicGrid = [[Bool]]
 type DisplayGrid = [[Char]]
 
+
+
 {- Grid representation + display -}
 
+
+-- Convert logical representation of grid to visual representation
 displayGrid :: LogicGrid -> DisplayGrid
 displayGrid = map displayRow
   where displayRow = foldr (\x acc -> if x then alive:acc else dead:acc) []
 
+
+-- Convert contents of input file to logical representation
 interpretGrid :: DisplayGrid -> LogicGrid
 interpretGrid = map interpretRow
   where interpretRow = foldr (\x acc -> (x==alive):acc) []
 
+
+-- Print grid to screen
 showGrid :: LogicGrid -> IO ()
 showGrid = mapM_ putStrLn . displayGrid
 
+
+
 {- File I/O -}
 
-readGrid :: FilePath -> IO LogicGrid
+
+-- Read in grid from file
+readGrid :: FilePath -> IO (Maybe LogicGrid)
 readGrid file = do
   handle <- openFile file ReadMode
   contents <- hGetContents handle
   putStr contents
   hClose handle
-  return $ interpretGrid $ lines contents
+  if validateGrid $ lines contents then do
+    return $ Just (interpretGrid $ lines contents)
+  else do
+    return Nothing
 
--- TODO: error handling if e.g. file not found, grid not a rectangle
+
+-- Check for invalid characters in input file
+-- TODO: also check for uneven row lengths
+validateGrid :: DisplayGrid -> Bool
+validateGrid  = and . map validateRow
+  where
+    validateRow = all valid
+    valid cell = cell == alive || cell == dead
+
+
 
 {- Retrieving cell values -}
+
 
 top :: LogicGrid -> Int
 top _ = 0
@@ -79,9 +117,13 @@ leftEdge _ = 0
 rightEdge :: LogicGrid -> Int
 rightEdge grid = length (head grid) - 1
 
+
+-- Get value of a given cell
 getCell :: Position -> LogicGrid -> Bool
 getCell (x,y) grid = (grid !! y) !! x
 
+
+-- Get values of a cell's eight neighbours
 getNeighbours :: Position -> LogicGrid -> [Bool]
 getNeighbours (x,y) grid = [a,b,l,r,al,ar,bl,br]
   where
@@ -130,21 +172,29 @@ getBelowRight (x,y) grid | x == rightEdge grid = False
                          | y == bottom grid = False
                          | otherwise = getCell (x+1, y+1) grid
 
+
+
 {- Game logic -}
 
-liveNeighbours :: Position -> LogicGrid -> Int
-liveNeighbours p = length . filter id . getNeighbours p
 
+-- Determine number of neighbours that are alive
+aliveNeighbours :: Position -> LogicGrid -> Int
+aliveNeighbours p = length . filter id . getNeighbours p
+
+
+-- Determine what a cell's upated value should be
 newCellValue :: Position -> LogicGrid -> Bool
 newCellValue p grid = case getCell p grid of
-  True -> case liveNeighbours p grid of
+  True -> case aliveNeighbours p grid of
     2 -> True
     3 -> True
     x -> False
-  False -> case liveNeighbours p grid of
+  False -> case aliveNeighbours p grid of
     3 -> True
     x -> False
 
+
+-- Update the state of the entire grid
 updateGrid :: LogicGrid -> LogicGrid
 updateGrid grid = [updateRow y grid | y <- [top grid .. bottom grid]]
   where 
